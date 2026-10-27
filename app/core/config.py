@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     storage_provider: Literal["s3", "local"] = "s3"
     # Browsers follow presigned links to this address, so it must be reachable by them.
     s3_endpoint_url: str = "http://localhost:9000"
+    # Set when the API reaches storage at a different address than browsers do (e.g. the
+    # "storage" hostname inside docker-compose); presigned links then use this one instead.
+    s3_public_endpoint_url: str | None = None
     s3_access_key: str = "lmsaccess"
     s3_secret_key: str = "lmssecret123"
     s3_bucket: str = "lms-media"

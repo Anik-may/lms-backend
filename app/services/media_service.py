@@ -35,10 +35,10 @@ def file_path(asset: MediaAsset) -> Path:
 
 
 @lru_cache
-def _s3_client():
+def _s3_client(endpoint_url: str | None = None):
     return boto3.client(
         "s3",
-        endpoint_url=settings.s3_endpoint_url,
+        endpoint_url=endpoint_url or settings.s3_endpoint_url,
         aws_access_key_id=settings.s3_access_key,
         aws_secret_access_key=settings.s3_secret_key,
         region_name=settings.s3_region,
@@ -92,7 +92,8 @@ def _remove(provider: str, bucket: str, object_key: str) -> None:
 
 def presigned_url(asset: MediaAsset) -> str:
     """A time-limited link straight to the object in the bucket."""
-    return _s3_client().generate_presigned_url(
+    # Signing happens locally, so the public endpoint never has to be reachable from here.
+    return _s3_client(settings.s3_public_endpoint_url).generate_presigned_url(
         "get_object",
         Params={"Bucket": asset.bucket, "Key": asset.object_key},
         ExpiresIn=settings.media_url_expire_minutes * 60,
